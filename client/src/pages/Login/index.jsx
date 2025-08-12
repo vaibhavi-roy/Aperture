@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, message, Input } from 'antd';
 import Button from '../../components/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LoginUser } from '../../apicalls/users';
 import { useDispatch } from 'react-redux';
 import { hideGlobalLoader, showGlobalLoader } from '../../redux/loadersSlice';
@@ -9,7 +9,7 @@ import { hideGlobalLoader, showGlobalLoader } from '../../redux/loadersSlice';
 // This component no longer needs props from App.jsx
 function Login() {
     const dispatch = useDispatch();
-
+    const navigate = useNavigate();
     const onFinish = async (values) => {
         try {
             dispatch(showGlobalLoader());
@@ -21,7 +21,7 @@ function Login() {
                 message.success(response.message);
                 localStorage.setItem('token', response.data);
                 // This forces a full page reload, which will re-initialize the app
-                window.location.href = "/";
+                navigate("/");
             } else {
                 message.error(response.message);
             }

@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { GetCurrentUser } from '../apicalls/users';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,9 +7,9 @@ import { setUser } from '../redux/usersSlice';
 import { hideGlobalLoader, showGlobalLoader } from '../redux/loadersSlice';
 
 function ProtectedRoute({ children }) {
+    // Get user from the global Redux store
     const { user } = useSelector((state) => state.users);
     const dispatch = useDispatch();
-    const [loading, setLoading] = useState(true); // Add a loading state
     const navigate = useNavigate();
 
     const getCurrentUser = async () => {
@@ -19,46 +19,40 @@ function ProtectedRoute({ children }) {
             dispatch(hideGlobalLoader());
 
             if (response.success) {
-                // setUser(response.data);
+                // Dispatch the user data to the Redux store
                 dispatch(setUser(response.data));
             } else {
-                // If the API call fails (e.g., bad token), redirect to login
+                // If token is invalid, clear user from store and local storage
                 dispatch(setUser(null));
+                localStorage.removeItem("token");
                 message.error(response.message);
                 navigate('/login');
             }
         } catch (error) {
+            dispatch(hideGlobalLoader());
             dispatch(setUser(null));
+            localStorage.removeItem("token");
             message.error(error.message);
             navigate('/login');
-            dispatch(hideGlobalLoader());
-
-        } finally {
-            setLoading(false); // Stop loading regardless of outcome
         }
     }
 
     useEffect(() => {
-        // Only run if there is a token
         if (localStorage.getItem('token')) {
-            getCurrentUser();
+            // If we have a token but no user in the store, fetch the user
+            if (!user) {
+                getCurrentUser();
+            }
         } else {
-            // If no token, no need to call API, just redirect
+            // If no token, redirect to login
             navigate('/login');
-            setLoading(false);
         }
-    }, []);
+    }, [user, navigate]); // Rerun if user or navigate function changes
 
-    // Conditionally render based on the user and loading states
-    if (loading) {
-        return <div>Loading...</div>; // Or a spinner component
-    }
-
-    // This check is crucial. Only render children if the user object is valid.
+    // Render the children only if the user object exists in the Redux store
     if (user) {
         return (
             <div>
-                {/* Now it's safe to access user.name */}
                 <h1>Welcome, {user.name}</h1>
                 <hr />
                 {children}
@@ -66,8 +60,7 @@ function ProtectedRoute({ children }) {
         )
     }
 
-    // If not loading and no user, it implies a redirect has already been triggered.
-    // Returning null prevents any further rendering attempts.
+    // Return null while authentication is in progress or redirecting
     return null;
 }
 

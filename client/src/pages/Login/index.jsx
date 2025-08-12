@@ -1,29 +1,33 @@
 import React from 'react';
 import { Form, message, Input } from 'antd';
 import Button from '../../components/Button';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { LoginUser } from '../../apicalls/users';
+import { useDispatch } from 'react-redux';
+import { hideGlobalLoader, showGlobalLoader } from '../../redux/loadersSlice';
 
+// This component no longer needs props from App.jsx
 function Login() {
-    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const onFinish = async (values) => {
         try {
+            dispatch(showGlobalLoader());
+
             const response = await LoginUser(values);
+            dispatch(hideGlobalLoader());
+
             if (response.success) {
                 message.success(response.message);
                 localStorage.setItem('token', response.data);
+                // This forces a full page reload, which will re-initialize the app
                 window.location.href = "/";
             } else {
-                // Always show the message from the backend on failure
                 message.error(response.message);
-
-                if (response.userDoesNotExist) {
-                    navigate('/register');
-                }
             }
         } catch (error) {
-            // Show backend error message, or a generic one if not available
             message.error(error.message || 'Something went wrong');
+            dispatch(hideGlobalLoader());
         }
     };
 
@@ -34,7 +38,6 @@ function Login() {
                     Aperture - Login
                 </h1>
                 <hr />
-
                 <Form layout="vertical" className='mt-2' onFinish={onFinish}>
                     <Form.Item
                         label="Email"
@@ -43,7 +46,6 @@ function Login() {
                     >
                         <Input type="email" />
                     </Form.Item>
-
                     <Form.Item
                         label="Password"
                         name="password"
@@ -51,7 +53,6 @@ function Login() {
                     >
                         <Input.Password />
                     </Form.Item>
-
                     <div className='flex flex-col mt-2 gap-1'>
                         <Button fullWidth type='submit' title='Login' />
                         <Link to="/register" className='text-primary text-center'>

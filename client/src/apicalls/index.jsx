@@ -5,6 +5,19 @@ export const axiosInstance = axios.create({
     baseURL: 'http://localhost:5000/api',
     headers: {
         'Content-Type': 'application/json',
-        'authorization': localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : ''
     }
 });
+
+// Use an interceptor to dynamically add the token to every request
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);

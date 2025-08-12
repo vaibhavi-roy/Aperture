@@ -1,51 +1,74 @@
 import { message } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { GetCurrentUser as GetUserFromAPI } from '../apicalls/users';
+import { GetCurrentUser } from '../apicalls/users';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUser } from '../redux/usersSlice';
+import { hideGlobalLoader, showGlobalLoader } from '../redux/loadersSlice';
 
 function ProtectedRoute({ children }) {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { user } = useSelector((state) => state.users);
+    const dispatch = useDispatch();
+    const [loading, setLoading] = useState(true); // Add a loading state
     const navigate = useNavigate();
 
-    const validateToken = async () => {
+    const getCurrentUser = async () => {
         try {
-            const response = await GetUserFromAPI();
+            dispatch(showGlobalLoader());
+            const response = await GetCurrentUser();
+            dispatch(hideGlobalLoader());
+
             if (response.success) {
-                setUser(response.data);
+                // setUser(response.data);
+                dispatch(setUser(response.data));
             } else {
-                // Server-side failure (e.g., token invalid)
-                localStorage.removeItem('token');
-                navigate('/login');
+                // If the API call fails (e.g., bad token), redirect to login
+                dispatch(setUser(null));
                 message.error(response.message);
+                navigate('/login');
             }
         } catch (error) {
-            // Catches the THROWN error from the API call (e.g., 401 Unauthorized)
-            localStorage.removeItem('token'); // Clear the invalid token
+            dispatch(setUser(null));
+            message.error(error.message);
             navigate('/login');
-            message.error(error.message || 'You must be logged in to access this page.');
+            dispatch(hideGlobalLoader());
+
         } finally {
-            setLoading(false);
+            setLoading(false); // Stop loading regardless of outcome
         }
-    };
+    }
 
     useEffect(() => {
+        // Only run if there is a token
         if (localStorage.getItem('token')) {
-            validateToken();
+            getCurrentUser();
         } else {
-            // No token exists, immediately redirect.
+            // If no token, no need to call API, just redirect
             navigate('/login');
             setLoading(false);
         }
     }, []);
 
-    // Show a loading indicator while validating
+    // Conditionally render based on the user and loading states
     if (loading) {
-        return <div>Loading...</div>;
+        return <div>Loading...</div>; // Or a spinner component
     }
 
-    // Render the children only if we have a valid user and are done loading
-    return user && !loading ? children : null;
+    // This check is crucial. Only render children if the user object is valid.
+    if (user) {
+        return (
+            <div>
+                {/* Now it's safe to access user.name */}
+                <h1>Welcome, {user.name}</h1>
+                <hr />
+                {children}
+            </div>
+        )
+    }
+
+    // If not loading and no user, it implies a redirect has already been triggered.
+    // Returning null prevents any further rendering attempts.
+    return null;
 }
 
 export default ProtectedRoute;

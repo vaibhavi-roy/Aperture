@@ -3,12 +3,17 @@ import { Form, message, Input } from 'antd';
 import Button from '../../components/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { RegisterUser } from '../../apicalls/users';
+import { useDispatch } from 'react-redux';
+import { hideGlobalLoader, showGlobalLoader } from '../../redux/loadersSlice';
 
 function Register() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const onFinish = async (values) => {
         try {
+            dispatch(showGlobalLoader());
             const response = await RegisterUser(values);
+            dispatch(hideGlobalLoader());
             if (response.success) {
                 message.success(response.message);
                 navigate('/login');
@@ -23,6 +28,8 @@ function Register() {
         } catch (error) {
             // Show backend error message, or a generic one if not available
             message.error(error.message || 'Something went wrong');
+            dispatch(hideGlobalLoader());
+
         }
     };
 

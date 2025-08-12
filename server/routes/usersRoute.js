@@ -41,9 +41,9 @@ router.post('/register', async (req, res) => {
 
 
 // Login a user
+// ... (no changes to login route)
 router.post('/login', async (req, res) => {
     try {
-        // Check if user exists
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
             return res.send({
@@ -53,7 +53,6 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Check if the password is valid
         const validPassword = await bcrypt.compare(req.body.password, user.password);
         if (!validPassword) {
             return res.send({
@@ -62,10 +61,8 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Create and assign a token
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        // Send success response with token
         res.send({
             success: true,
             message: 'User logged in successfully',
@@ -84,7 +81,8 @@ router.post('/login', async (req, res) => {
 // Get current user details
 router.get('/get-current-user', authMiddleware, async (req, res) => {
     try {
-        const user = await User.findById(req.body.userId).select('-password');
+        // Corrected: Read userId from req.userId
+        const user = await User.findById(req.userId).select('-password');
         if (!user) {
             return res.send({
                 success: false,

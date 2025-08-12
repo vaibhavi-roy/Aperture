@@ -6,3 +6,28 @@
 .w-500 {
   width: 500px;
 }
+
+/* loader */
+.loader-parent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #000;
+  opacity: 0.8;
+  z-index: 999999;
+}
+
+.loader {
+  border: 4px solid  var(--colour-secondary);
+  border-top: 4px solid  var(--colour-primary);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

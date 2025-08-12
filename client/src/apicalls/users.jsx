@@ -7,7 +7,10 @@ export const RegisterUser = async (payload) => {
         return response.data;
     } catch (error) {
         // Axios wraps the error response in error.response
-        throw error.response.data;
+        if (error.response && error.response.data) {
+            throw error.response.data;
+        }
+        throw new Error("An unexpected error occurred");
     }
 };
 
@@ -17,7 +20,10 @@ export const LoginUser = async (payload) => {
         const response = await axiosInstance.post('/users/login', payload);
         return response.data;
     } catch (error) {
-        throw error.response.data;
+        if (error.response && error.response.data) {
+            throw error.response.data;
+        }
+        throw new Error("An unexpected error occurred");
     }
 };
 
@@ -26,6 +32,9 @@ export const GetCurrentUser = async () => {
         const response = await axiosInstance.get('/users/get-current-user');
         return response.data;
     } catch (error) {
-        throw error.response.data;
+        if (error.response && error.response.data) {
+            throw error.response.data;
+        }
+        throw new Error("An unexpected error occurred");
     }
 };

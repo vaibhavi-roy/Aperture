@@ -23,9 +23,9 @@ export const LoginUser = async (payload) => {
 
 export const GetCurrentUser = async () => {
     try {
-        const response = await axiosInstance.get(`/users/get-current-user`);
+        const response = await axiosInstance.get('/users/get-current-user');
         return response.data;
     } catch (error) {
-        return error;
+        throw error.response.data;
     }
 };

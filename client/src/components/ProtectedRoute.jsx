@@ -50,18 +50,40 @@ function ProtectedRoute({ children }) {
     }, [user, navigate]); // Rerun if user or navigate function changes
 
     // Render the children only if the user object exists in the Redux store
-    if (user) {
-        return (
-            <div>
-                <h1>Welcome, {user.name}</h1>
-                <hr />
+
+    return user && (
+        <div className='layout p-1'>
+            <div className='header bg-primary flex justify-between p-2'>
+                <div>
+                    <h1 className='text-white text-2xl cursor-pointer' onClick={() => navigate('/')}>APERTURE</h1>
+                </div>
+
+                <div className='bg-white p-1 flex items-center gap-1'>
+                    <i className="ri-shield-user-line text-primary"></i>
+                    <h1 className='text-sm m-0 underline'
+                        onClick={() => {
+                            if (user.isAdmin) {
+                                navigate('/admin');
+                            } else {
+                                navigate('/profile');
+                            }
+                        }}
+                    >{user.name}</h1>
+                    <i className="ri-logout-box-r-line ml-2"
+                        onClick={() => {
+                            localStorage.removeItem("token");
+                            dispatch(setUser(null));
+                            navigate('/login');
+                        }}
+                    ></i>
+
+                </div>
+            </div>
+            <div className='content mt-1 p-1'>
                 {children}
             </div>
-        )
-    }
-
-    // Return null while authentication is in progress or redirecting
-    return null;
+        </div>
+    )
 }
 
 export default ProtectedRoute;

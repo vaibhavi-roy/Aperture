@@ -9,6 +9,8 @@ import "./stylesheets/sizes.css";
 import "./stylesheets/theme.css";
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSelector } from 'react-redux';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
 
 function App() {
   // Correctly get the loading state from the loaders slice
@@ -25,6 +27,8 @@ function App() {
         <Routes>
           {/* ProtectedRoute will now handle its own data fetching */}
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

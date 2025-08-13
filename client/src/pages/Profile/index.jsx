@@ -1,12 +1,12 @@
 import React from 'react'
 import PageTitle from '../../components/PageTitle'
 
-function Home() {
+function Profile() {
     return (
         <div>
-            <PageTitle title="Home" />
+            <PageTitle title="Profile" />
         </div>
     )
 }
 
-export default Home
+export default Profile

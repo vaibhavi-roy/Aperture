@@ -6,7 +6,7 @@ function Button({ title, onClick, variant, disabled, fullWidth, type }) {
         className += ' w-full'
     }
     if (variant === 'outlined') {
-        className = className.replace('bg-primary', ' border border-primary text-primary bg-white')
+        className = className.replace('bg-primary text-white', 'border border-primary text-primary bg-white');
     }
     return (
         <button onClick={onClick} className={className} type={type} disabled={disabled}>

@@ -8,7 +8,10 @@ const cors = require('cors');
 app.use(cors());
 
 const usersRoute = require('./routes/usersRoute');
+const moviesRoute = require('./routes/moviesRoute');
+
 app.use('/api/users', usersRoute);
+app.use('/api/movies', moviesRoute);
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
